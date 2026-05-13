@@ -1,0 +1,122 @@
+// Cambium MRV — Prisma schema
+//
+// Naming follows the spec section 10. Singular `verification_events` uses
+// composite keys for the relation. JSON columns are typed loosely here; the
+// shape is validated at the API boundary via @cambium/shared Zod schemas.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Field {
+  id                String            @id @default(uuid()) @db.Uuid
+  ownerId           String            @db.Uuid
+  fieldCode         String            @unique
+  displayName       String
+  region            String?
+  cropDefault       String?
+  approximateAreaHa Decimal?          @db.Decimal(10, 4)
+  privacyLevel      String            @default("standard")
+  createdAt         DateTime          @default(now())
+
+  sessions          MachineSession[]
+
+  @@map("fields")
+}
+
+model Machine {
+  id            String            @id @default(uuid()) @db.Uuid
+  ownerId       String            @db.Uuid
+  machineCode   String            @unique
+  machineType   String
+  publicKeyHex  String?
+  vendorVisible Boolean           @default(false)
+  status        String            @default("registered")
+  createdAt     DateTime          @default(now())
+
+  sessions      MachineSession[]
+
+  @@map("machines")
+}
+
+model MachineSession {
+  id                       String            @id @default(uuid()) @db.Uuid
+  fieldId                  String            @db.Uuid
+  machineId                String            @db.Uuid
+  operationType            String
+  crop                     String?
+  startedAt                DateTime
+  endedAt                  DateTime
+  areaCoveredHa            Decimal?          @db.Decimal(10, 4)
+  yieldKgApprox            Decimal?          @db.Decimal(14, 4)
+  rawLogHash               String
+  gpsPathHash              String
+  gpsPathPreview           Json
+  photoHashes              Json              @default("[]")
+  importedJsonEncryptedRef String?
+  importSource             String            @default("json")
+  createdAt                DateTime          @default(now())
+
+  field                    Field             @relation(fields: [fieldId], references: [id])
+  machine                  Machine           @relation(fields: [machineId], references: [id])
+  evidencePackets          EvidencePacket[]
+
+  @@map("machine_sessions")
+}
+
+model EvidencePacket {
+  id                String                     @id @default(uuid()) @db.Uuid
+  sessionId         String                     @db.Uuid
+  packetSchema      String
+  packetJson        Json
+  packetHash        String                     @unique
+  canonicalization  String                     @default("RFC8785-like")
+  assuranceLevel    String                     @default("AL1")
+  status            String                     @default("draft")
+  farmerSignature   String?
+  reviewerSignature String?
+  publicVerifySlug  String?                    @unique
+  createdAt         DateTime                   @default(now())
+  signedAt          DateTime?
+  submittedAt       DateTime?
+
+  session                 MachineSession              @relation(fields: [sessionId], references: [id])
+  constellationSubmissions ConstellationSubmission[]
+  verificationEvents      VerificationEvent[]
+
+  @@map("evidence_packets")
+}
+
+model ConstellationSubmission {
+  id                  String          @id @default(uuid()) @db.Uuid
+  evidencePacketId    String          @db.Uuid
+  constellationEventId String?
+  constellationHash   String?
+  accepted            Boolean?
+  message             String?
+  requestPayload      Json
+  responsePayload     Json
+  mode                String          @default("mock")
+  createdAt           DateTime        @default(now())
+
+  evidencePacket      EvidencePacket  @relation(fields: [evidencePacketId], references: [id])
+
+  @@map("constellation_submissions")
+}
+
+model VerificationEvent {
+  id               String          @id @default(uuid()) @db.Uuid
+  evidencePacketId String          @db.Uuid
+  verifierType     String?
+  result           String
+  checkedAt        DateTime        @default(now())
+
+  evidencePacket   EvidencePacket  @relation(fields: [evidencePacketId], references: [id])
+
+  @@map("verification_events")
+}

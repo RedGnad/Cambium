@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "jsx": "react",
+    "noEmit": true,
+    "paths": {
+      "@cambium/shared": ["../../packages/shared/src/index.ts"],
+      "@cambium/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src/**/*", "scripts/**/*", "prisma/**/*.ts"]
+}

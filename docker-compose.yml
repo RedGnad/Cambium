@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: cambium-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cambium
+      POSTGRES_PASSWORD: cambium
+      POSTGRES_DB: cambium
+    ports:
+      - "5432:5432"
+    volumes:
+      - cambium-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cambium -d cambium"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  cambium-db-data:
