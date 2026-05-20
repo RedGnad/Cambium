@@ -105,7 +105,7 @@ export async function evidenceRoutes(app: FastifyInstance): Promise<void> {
       take: 100,
       include: { constellationSubmissions: { take: 1, orderBy: { createdAt: "desc" } } },
     });
-    return rows.map((r) => ({
+    return rows.map((r: (typeof rows)[number]) => ({
       id: r.id,
       packetHash: r.packetHash,
       status: r.status,
@@ -134,13 +134,15 @@ export async function evidenceRoutes(app: FastifyInstance): Promise<void> {
       createdAt: row.createdAt.toISOString(),
       signedAt: row.signedAt?.toISOString() ?? null,
       submittedAt: row.submittedAt?.toISOString() ?? null,
-      constellationSubmissions: row.constellationSubmissions.map((s) => ({
-        eventId: s.constellationEventId,
-        mode: s.mode,
-        accepted: s.accepted,
-        message: s.message,
-        createdAt: s.createdAt.toISOString(),
-      })),
+      constellationSubmissions: row.constellationSubmissions.map(
+        (s: (typeof row.constellationSubmissions)[number]) => ({
+          eventId: s.constellationEventId,
+          mode: s.mode,
+          accepted: s.accepted,
+          message: s.message,
+          createdAt: s.createdAt.toISOString(),
+        })
+      ),
     };
   });
 
