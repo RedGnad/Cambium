@@ -6,9 +6,11 @@ import { api, type SubmitResultDto } from "@/lib/api";
 
 export function EvidenceActions({
   packetId,
+  publicVerifySlug,
   status,
 }: {
   packetId: string;
+  publicVerifySlug: string;
   status: string;
 }) {
   const router = useRouter();
@@ -82,7 +84,7 @@ export function EvidenceActions({
           {status === "submitted" ? (
             <a
               className="btn"
-              href={submitted ? submitted.verifyUrl : `/verify/${packetId}`}
+              href={submitted ? submitted.verifyUrl : `/verify/${publicVerifySlug}`}
             >
               Open verify page
             </a>

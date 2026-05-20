@@ -52,7 +52,11 @@ export default async function EvidenceDetailPage({
         </div>
       </header>
 
-      <EvidenceActions packetId={pkt!.id} status={pkt!.status} />
+      <EvidenceActions
+        packetId={pkt!.id}
+        publicVerifySlug={pkt!.publicVerifySlug}
+        status={pkt!.status}
+      />
 
       <section className="card">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-500">

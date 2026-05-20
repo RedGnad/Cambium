@@ -27,6 +27,14 @@ const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 10, color: "#111" },
   title: { fontSize: 18, marginBottom: 4, fontWeight: 700 },
   subtitle: { fontSize: 10, color: "#666", marginBottom: 18 },
+  notice: {
+    marginBottom: 14,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#b8c7bb",
+    backgroundColor: "#f2f7f3",
+    color: "#264a31",
+  },
   section: { marginBottom: 14 },
   sectionTitle: {
     fontSize: 11,
@@ -85,10 +93,18 @@ export async function renderEvidencePdf(
   const doc = (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>Cambium Field Evidence Packet</Text>
+        <Text style={styles.title}>Cambium MRV Evidence Report</Text>
         <Text style={styles.subtitle}>
           Schema {packet.schema} · Assurance {packet.assuranceLevel}
         </Text>
+
+        <View style={styles.notice}>
+          <Text>
+            This report verifies a privacy-preserving field evidence packet. It
+            is not a carbon certificate, legal compliance opinion or disclosure
+            of raw machine telemetry.
+          </Text>
+        </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Summary</Text>
@@ -178,6 +194,14 @@ export async function renderEvidencePdf(
           ) : (
             <Row label="Attestation" value="none (draft)" />
           )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Data boundary</Text>
+          <Row label="Raw logs" value="not published; hash only" />
+          <Row label="Exact GPS" value="not published; transformed preview only" />
+          <Row label="Machine logic" value="not exposed" />
+          <Row label="Yield" value={packet.privacy.yieldPolicy} />
         </View>
 
         <View style={styles.section}>

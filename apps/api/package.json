@@ -11,7 +11,8 @@
     "db:migrate:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
     "db:generate": "dotenv -e ../../.env -- prisma generate",
     "db:studio": "dotenv -e ../../.env -- prisma studio",
-    "gen:demo-keys": "tsx scripts/gen-demo-keys.ts"
+    "gen:demo-keys": "tsx scripts/gen-demo-keys.ts",
+    "seed:demo": "dotenv -e ../../.env -- tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@cambium/shared": "workspace:*",

@@ -296,6 +296,7 @@ export async function submitEvidencePacket(
 
 export interface VerifyResult {
   status: "verified" | "tampered" | "not_found";
+  evidenceId?: string;
   packetHash: Sha256Ref;
   packet?: FieldEvidencePacket;
   constellation?: {
@@ -346,6 +347,7 @@ export async function verifyByHashOrSlug(hashOrSlug: string): Promise<VerifyResu
   if (!hashMatches || !schemaValid) {
     return {
       status: "tampered",
+      evidenceId: record.id,
       packetHash: record.packetHash as Sha256Ref,
       packet,
       signatureValid: false,
@@ -365,6 +367,7 @@ export async function verifyByHashOrSlug(hashOrSlug: string): Promise<VerifyResu
 
   return {
     status: "verified",
+    evidenceId: record.id,
     packetHash: record.packetHash as Sha256Ref,
     packet,
     constellation: submission

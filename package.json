@@ -21,6 +21,7 @@
     "build": "pnpm -r --filter=./packages/* --filter=./apps/* build",
     "typecheck": "pnpm -r typecheck",
     "lint": "pnpm -r lint",
+    "seed:demo": "pnpm --filter @cambium/api seed:demo",
     "db:up": "docker start cambium-db 2>/dev/null || docker run -d --name cambium-db -e POSTGRES_USER=cambium -e POSTGRES_PASSWORD=cambium -e POSTGRES_DB=cambium -p 5432:5432 -v cambium-db-data:/var/lib/postgresql/data postgres:16-alpine",
     "db:down": "docker stop cambium-db",
     "db:reset": "docker rm -f cambium-db 2>/dev/null; docker volume rm cambium-db-data 2>/dev/null; pnpm db:up",

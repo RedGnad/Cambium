@@ -130,3 +130,23 @@ export interface SubmitResultDto {
   };
   verifyUrl: string;
 }
+
+export interface DemoSeedDto {
+  field: {
+    id: string;
+    fieldCode: string;
+    displayName: string;
+  };
+  machine: {
+    id: string;
+    machineCode: string;
+    machineType: string;
+  };
+  session: {
+    id: string;
+    operationType: string;
+    crop: string | null;
+    importSource: string;
+  };
+  nextPath: string;
+}

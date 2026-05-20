@@ -15,6 +15,7 @@ export async function verifyRoutes(app: FastifyInstance): Promise<void> {
       // operation/field/machine fields from a document we cannot trust.
       return {
         status: "tampered",
+        evidenceId: result.evidenceId,
         packetHash: result.packetHash,
         signatureValid: result.signatureValid ?? false,
         message:
@@ -25,6 +26,7 @@ export async function verifyRoutes(app: FastifyInstance): Promise<void> {
     const packet = result.packet;
     return {
       status: result.status,
+      evidenceId: result.evidenceId,
       packetHash: result.packetHash,
       signatureValid: result.signatureValid ?? null,
       packetSchema: packet.schema,

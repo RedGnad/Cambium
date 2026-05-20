@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { api, type FieldDto, type MachineDto, type SessionDto, type EvidencePacketDto } from "@/lib/api";
+import { DemoFlowButton } from "./DemoFlowButton";
 
 export const dynamic = "force-dynamic";
 
@@ -43,16 +44,19 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <section>
-        <div className="flex items-end justify-between">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
             <p className="mt-1 text-sm text-ink-600">
               The machine stays private. The proof layer becomes verifiable.
             </p>
           </div>
-          <Link href="/sessions" className="btn">
-            Import machine session
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/sessions" className="btn-secondary">
+              Import session
+            </Link>
+            <DemoFlowButton />
+          </div>
         </div>
       </section>
 

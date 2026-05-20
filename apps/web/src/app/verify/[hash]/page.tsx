@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 interface VerifiedResponse {
   status: "verified";
+  evidenceId: string;
   packetHash: string;
   signatureValid: boolean | null;
   packetId: string;
@@ -48,6 +49,7 @@ interface VerifiedResponse {
 
 interface TamperedResponse {
   status: "tampered";
+  evidenceId?: string;
   packetHash: string;
   signatureValid: boolean;
   message: string;
@@ -115,7 +117,7 @@ export default async function VerifyPage({
   return (
     <div className="space-y-6">
       <header className="rounded-md border border-cambium-100 bg-cambium-50 p-5">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-xl font-semibold text-cambium-700">
             Cambium Field Evidence Packet
           </h1>
@@ -144,11 +146,21 @@ export default async function VerifyPage({
         <div className="mt-2 break-all text-[11px] text-ink-600">
           {data.packetHash}
         </div>
-        <p className="mt-3 text-xs text-cambium-700">
-          This page verifies integrity and provenance of the evidence packet.
-          It does not disclose proprietary machine logic or certify carbon
-          credits.
-        </p>
+        <div className="mt-3 flex flex-wrap items-end justify-between gap-3">
+          <p className="max-w-2xl text-xs text-cambium-700">
+            This page verifies integrity and provenance of the evidence packet.
+            It does not disclose proprietary machine logic, certify carbon
+            credits or guarantee legal compliance.
+          </p>
+          <a
+            className="btn-secondary bg-white"
+            href={`/api/proxy/evidence/${data.evidenceId}/pdf`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Export PDF
+          </a>
+        </div>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-3">
@@ -255,11 +267,11 @@ export default async function VerifyPage({
         <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-cambium-700">
           Claim boundary
         </h2>
-        <ul className="text-xs text-cambium-700">
-          <li>· does not certify carbon credits</li>
-          <li>· does not guarantee compliance</li>
-          <li>· does not expose proprietary machine logic</li>
-          <li>· intended use: {data.claimBoundary.intendedUse.join(", ")}</li>
+        <ul className="space-y-1 text-xs text-cambium-700">
+          <li>Does not certify carbon credits.</li>
+          <li>Does not guarantee compliance.</li>
+          <li>Does not expose proprietary machine logic.</li>
+          <li>Intended use: {data.claimBoundary.intendedUse.join(", ")}.</li>
         </ul>
       </section>
     </div>
