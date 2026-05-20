@@ -21,9 +21,21 @@ Open `http://localhost:3000`.
 3. Creates the demo HARVEST session.
 4. Generates the Field Evidence Packet.
 5. Signs the packet with the demo signer.
-6. Submits the fingerprint through Constellation mock mode.
+6. Submits the fingerprint through Constellation mock or live mode.
 7. Creates the public verify URL.
 8. Render-tests the PDF report.
+
+To run against Constellation Digital Evidence live mode, configure:
+
+```bash
+CONSTELLATION_MODE=live
+CONSTELLATION_API_BASE_URL=https://de-api.constellationnetwork.io/v1
+CONSTELLATION_API_KEY=...
+CONSTELLATION_ORG_ID=...
+CONSTELLATION_TENANT_ID=...
+```
+
+The UI exposes integration readiness at `http://localhost:3000/integrations`.
 
 ## Judge Flow
 
@@ -33,7 +45,7 @@ Open `http://localhost:3000`.
 4. Preview the privacy transform.
 5. Build the Field Evidence Packet.
 6. Sign the packet with the demo server signer.
-7. Submit the fingerprint to Constellation mock mode.
+7. Submit the fingerprint to Constellation mock or live mode.
 8. Open the public verify page.
 9. Export the PDF report.
 
@@ -49,3 +61,4 @@ The raw machine data never becomes public. The verifier sees the proof layer: ps
 - Tamper detection hashes raw stored JSON before schema parsing.
 - The claim boundary says Cambium supports evidence workflows; it does not certify compliance or carbon credits.
 - The demo is seeded so judges do not have to invent field and machine records manually.
+- Mock submissions are visibly labelled. Live submissions use Constellation Digital Evidence `/fingerprints`.

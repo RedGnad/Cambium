@@ -42,7 +42,7 @@ Cambium currently:
 - creates privacy-preserving Field Evidence Packets;
 - computes tamper-evident canonical hashes;
 - signs packets with a demo secp256k1 signer;
-- submits fingerprints through a Constellation adapter, currently mock mode;
+- submits fingerprints through a Constellation Digital Evidence adapter, in mock or live mode depending on environment configuration;
 - exposes a public verification page;
 - generates PDF audit reports;
 - detects tampering by hashing stored raw JSON before schema parsing.
@@ -93,6 +93,30 @@ Open demo session
 
 After seeding, the dashboard exposes a "Run demo flow" action. The seed command creates the demo field, demo machine, harvest session, signed/submitted evidence packet, verify URL and render-tested PDF report.
 
+## Demo In 60 Seconds
+
+```bash
+pnpm install
+cp .env.example .env
+pnpm db:up
+pnpm --filter @cambium/api gen:demo-keys
+pnpm --filter @cambium/api db:migrate
+pnpm seed:demo
+pnpm dev
+```
+
+Then open `http://localhost:3000`.
+
+Demo flow:
+
+```text
+Open demo session
+  -> Generate / inspect Field Evidence Packet
+  -> Verify signature and hash
+  -> Open public verification page
+  -> Export PDF evidence report
+```
+
 ## Quickstart
 
 Requires Node >= 22, pnpm >= 10 and Docker.
@@ -123,7 +147,7 @@ Then open `http://localhost:3000`.
 | Demo seed command | done |
 | Dashboard demo entry | done |
 | Constellation mock adapter | done |
-| Constellation live adapter | scaffolded only |
+| Constellation live adapter | done — official `/fingerprints` API, requires API key/org/tenant env |
 | PDF report | done |
 | Tamper detection | done |
 | Auth / multi-tenant | not implemented |

@@ -6,6 +6,10 @@ import {
   sha256RefSchema,
 } from "./common.js";
 
+export const constellationHashSchema = z
+  .string()
+  .regex(/^[0-9a-f]{32,128}$/i, "expected 32-128 hex chars");
+
 export const CONSTELLATION_SIGNATURE_ALGO = "SECP256K1_RFC8785_V1" as const;
 
 export const constellationProofSchema = z.object({
@@ -20,7 +24,7 @@ export const constellationAttestationContentSchema = z.object({
   eventId: z.string().uuid(),
   signerId: z.string(),
   documentId: z.string(),
-  documentRef: sha256RefSchema,
+  documentRef: constellationHashSchema,
   timestamp: isoDateTimeSchema,
   version: z.literal(1),
 });
@@ -31,7 +35,7 @@ export const constellationPayloadSchema = z.object({
     proofs: z.array(constellationProofSchema).min(1),
   }),
   metadata: z.object({
-    hash: sha256RefSchema,
+    hash: constellationHashSchema,
     tags: z.record(z.string(), z.string()),
   }),
 });

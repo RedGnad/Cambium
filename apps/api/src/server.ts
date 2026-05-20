@@ -11,6 +11,7 @@ import { privacyRoutes } from "./routes/privacy.js";
 import { evidenceRoutes } from "./routes/evidence.js";
 import { verifyRoutes } from "./routes/verify.js";
 import { demoRoutes } from "./routes/demo.js";
+import { integrationRoutes } from "./routes/integrations.js";
 
 async function bootstrap() {
   const app = Fastify({
@@ -37,6 +38,7 @@ async function bootstrap() {
     await api.register(evidenceRoutes);
     await api.register(verifyRoutes);
     await api.register(demoRoutes);
+    await api.register(integrationRoutes);
   }, { prefix: "/api" });
 
   app.setErrorHandler((err, _req, reply) => {

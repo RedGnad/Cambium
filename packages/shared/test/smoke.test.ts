@@ -3,15 +3,19 @@ import assert from "node:assert/strict";
 import {
   applyPrivacyTransform,
   buildEvidencePacket,
+  buildConstellationContent,
   buildConstellationPayload,
   canonicalJsonStringify,
   canonicalSha256Ref,
   fieldEvidencePacketSchema,
   generateKeyPair,
+  LiveConstellationAdapter,
   MockConstellationAdapter,
   packetHash,
   signCanonical,
+  signConstellationFingerprint,
   verifyCanonical,
+  verifyConstellationFingerprint,
 } from "../src/index.js";
 
 test("canonical JSON sorts keys deterministically", () => {
@@ -97,21 +101,93 @@ test("end-to-end: build → sign → verify → submit", async () => {
   };
   const hash = packetHash(signed);
 
-  const payload = buildConstellationPayload({
+  const contentInput = {
     packet: signed,
     packetHash: hash,
-    signerPublicKeyHex: keys.publicKeyHex,
-    signatureHex,
     signerId: "test_signer",
     eventId: "00000000-0000-4000-8000-000000000000",
     timestamp: "2026-06-12T11:06:01.000Z",
     orgId: "test-org",
     tenantId: "test-tenant",
+  };
+  const constellationContent = buildConstellationContent(contentInput);
+  const constellationSignature = signConstellationFingerprint(
+    constellationContent,
+    keys.privateKeyHex
+  );
+  assert.ok(
+    verifyConstellationFingerprint(
+      constellationContent,
+      constellationSignature.signatureHex,
+      keys.publicKeyHex
+    )
+  );
+
+  const payload = buildConstellationPayload({
+    ...contentInput,
+    signerPublicKeyHex: keys.publicKeyHex,
+    signatureHex: constellationSignature.signatureHex,
   });
+  assert.equal(payload.attestation.content.documentRef, hash.replace(/^sha256:/, ""));
 
   const adapter = new MockConstellationAdapter();
   const result = await adapter.submit(payload);
   assert.equal(result.accepted, true);
   assert.equal(result.mode, "mock");
   assert.equal(result.hash, hash);
+});
+
+test("live Constellation adapter posts official fingerprints payload", async () => {
+  const calls: Array<{ url: string; init: RequestInit }> = [];
+  const adapter = new LiveConstellationAdapter({
+    apiBaseUrl: "https://de-api.constellationnetwork.io/v1",
+    apiKey: "test-key",
+    fetchImpl: (async (url, init) => {
+      calls.push({ url: String(url), init: init ?? {} });
+      return new Response(
+        JSON.stringify([
+          {
+            eventId: "00000000-0000-4000-8000-000000000001",
+            hash: "a".repeat(64),
+            accepted: true,
+            message: "accepted",
+          },
+        ]),
+        { status: 200, headers: { "content-type": "application/json" } }
+      );
+    }) as typeof fetch,
+  });
+
+  const payload = {
+    attestation: {
+      content: {
+        orgId: "00000000-0000-4000-8000-000000000001",
+        tenantId: "00000000-0000-4000-8000-000000000002",
+        eventId: "00000000-0000-4000-8000-000000000003",
+        signerId: "test",
+        documentId: "cambium:fep_test",
+        documentRef: "b".repeat(64),
+        timestamp: "2026-06-12T11:06:01.000Z",
+        version: 1 as const,
+      },
+      proofs: [
+        {
+          id: "02" + "c".repeat(64),
+          signature: "d".repeat(128),
+          algorithm: "SECP256K1_RFC8785_V1" as const,
+        },
+      ],
+    },
+    metadata: {
+      hash: "b".repeat(64),
+      tags: { project: "Cambium MRV" },
+    },
+  };
+
+  const result = await adapter.submit(payload);
+  assert.equal(result.mode, "live");
+  assert.equal(result.hash, `sha256:${"a".repeat(64)}`);
+  assert.equal(calls[0]?.url, "https://de-api.constellationnetwork.io/v1/fingerprints");
+  assert.equal((calls[0]?.init.headers as Record<string, string>)["X-API-Key"], "test-key");
+  assert.equal(calls[0]?.init.body, JSON.stringify([payload]));
 });

@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/machines", label: "Machines" },
   { href: "/sessions", label: "Sessions" },
   { href: "/evidence", label: "Evidence" },
+  { href: "/integrations", label: "Integrations" },
 ];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

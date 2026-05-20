@@ -17,22 +17,42 @@ export interface BuildConstellationPayloadInput {
   tenantId: string;
 }
 
+export type BuildConstellationContentInput = Omit<
+  BuildConstellationPayloadInput,
+  "signerPublicKeyHex" | "signatureHex"
+>;
+
+export function stripSha256Prefix(hash: Sha256Ref): string {
+  return hash.replace(/^sha256:/, "");
+}
+
+export function asSha256Ref(hash: string): Sha256Ref {
+  return (hash.startsWith("sha256:") ? hash : `sha256:${hash}`) as Sha256Ref;
+}
+
+export function buildConstellationContent(
+  input: BuildConstellationContentInput
+): ConstellationPayload["attestation"]["content"] {
+  const { packet } = input;
+  return {
+    orgId: input.orgId,
+    tenantId: input.tenantId,
+    eventId: input.eventId,
+    signerId: input.signerId,
+    documentId: `cambium:${packet.packetId}`,
+    documentRef: stripSha256Prefix(input.packetHash),
+    timestamp: input.timestamp,
+    version: 1,
+  };
+}
+
 export function buildConstellationPayload(
   input: BuildConstellationPayloadInput
 ): ConstellationPayload {
   const { packet } = input;
   return {
     attestation: {
-      content: {
-        orgId: input.orgId,
-        tenantId: input.tenantId,
-        eventId: input.eventId,
-        signerId: input.signerId,
-        documentId: `cambium:${packet.packetId}`,
-        documentRef: input.packetHash,
-        timestamp: input.timestamp,
-        version: 1,
-      },
+      content: buildConstellationContent(input),
       proofs: [
         {
           id: input.signerPublicKeyHex,
@@ -42,7 +62,7 @@ export function buildConstellationPayload(
       ],
     },
     metadata: {
-      hash: input.packetHash,
+      hash: stripSha256Prefix(input.packetHash),
       tags: {
         project: "Cambium MRV",
         operationType: packet.operation.type,

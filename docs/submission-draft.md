@@ -27,6 +27,17 @@ machine session
 
 The blockchain layer is not used for tokens or speculation. It is used as a public, tamper-evident timestamp and fingerprint layer for an evidence packet whose raw source data stays private.
 
+## Why Constellation
+
+Cambium uses Constellation Digital Evidence as the public fingerprint layer. In mock mode, the app preserves the same payload shape and labels the submission clearly. In live mode, Cambium submits a signed fingerprint to the official `/fingerprints` API with `X-API-Key` authorization.
+
+Live mode requires:
+
+- API base URL;
+- API key;
+- organization ID;
+- tenant ID.
+
 ## What Is Built
 
 - Fastify API with Prisma/PostgreSQL.
@@ -35,7 +46,7 @@ The blockchain layer is not used for tokens or speculation. It is used as a publ
 - Privacy transforms.
 - Canonical hashing.
 - secp256k1 demo signer and verifier.
-- Constellation Digital Evidence adapter in mock mode.
+- Constellation Digital Evidence adapter in mock or live mode.
 - Public verifier.
 - PDF report.
 - Seeded demo flow.

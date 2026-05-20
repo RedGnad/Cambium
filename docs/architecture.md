@@ -43,6 +43,7 @@ Field + machine registration
 - `GET /api/evidence/:id/pdf`
 - `GET /api/verify/:hash`
 - `POST /api/demo/seed`
+- `GET /api/integrations/constellation`
 
 ## Trust Boundary
 
@@ -70,4 +71,3 @@ The public verifier receives:
 - W3C VC;
 - carbon-credit issuance;
 - legal compliance automation.
-

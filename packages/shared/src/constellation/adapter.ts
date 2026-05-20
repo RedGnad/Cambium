@@ -2,6 +2,7 @@ import type {
   ConstellationPayload,
   ConstellationSubmissionResult,
 } from "../schemas/constellation.js";
+import { asSha256Ref } from "./payload.js";
 
 export interface ConstellationAdapter {
   readonly mode: "mock" | "live";
@@ -24,7 +25,7 @@ export class MockConstellationAdapter implements ConstellationAdapter {
   ): Promise<ConstellationSubmissionResult> {
     return {
       eventId: payload.attestation.content.eventId,
-      hash: payload.metadata.hash,
+      hash: asSha256Ref(payload.metadata.hash),
       accepted: true,
       message: "Mock Constellation submission accepted",
       mode: "mock",
@@ -33,12 +34,6 @@ export class MockConstellationAdapter implements ConstellationAdapter {
   }
 }
 
-/**
- * Live adapter scaffold. Intentionally throws until a real endpoint
- * contract is wired in. We refuse to invent the on-the-wire format —
- * point this at the actual Constellation Digital Evidence API once
- * its documentation is provided.
- */
 export interface LiveConstellationAdapterOptions {
   apiBaseUrl: string;
   apiKey: string;
@@ -63,12 +58,64 @@ export class LiveConstellationAdapter implements ConstellationAdapter {
   }
 
   async submit(
-    _payload: ConstellationPayload
+    payload: ConstellationPayload
   ): Promise<ConstellationSubmissionResult> {
-    throw new Error(
-      "LiveConstellationAdapter is not wired yet — provide the Constellation " +
-        "Digital Evidence API endpoint contract before switching mode to live."
-    );
+    const res = await this.fetchImpl(`${this.apiBaseUrl}/fingerprints`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+        "X-API-Key": this.apiKey,
+      },
+      body: JSON.stringify([payload]),
+    });
+
+    const text = await res.text();
+    const parsed = text ? safeJson(text) : undefined;
+
+    if (!res.ok) {
+      throw new Error(
+        `Constellation Digital Evidence submission failed (${res.status}): ${summarizeResponse(parsed ?? text)}`
+      );
+    }
+
+    const first = Array.isArray(parsed) ? parsed[0] : parsed;
+    if (!first || typeof first !== "object") {
+      throw new Error("Constellation Digital Evidence returned an empty response");
+    }
+
+    const result = first as {
+      eventId?: string;
+      hash?: string;
+      accepted?: boolean;
+      message?: string;
+    };
+
+    return {
+      eventId: result.eventId ?? payload.attestation.content.eventId,
+      hash: asSha256Ref(result.hash ?? payload.metadata.hash),
+      accepted: result.accepted ?? true,
+      message: result.message ?? "Live Constellation submission accepted",
+      mode: "live",
+      receivedAt: new Date().toISOString(),
+    };
+  }
+}
+
+function safeJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
+function summarizeResponse(value: unknown): string {
+  if (typeof value === "string") return value.slice(0, 500);
+  try {
+    return JSON.stringify(value).slice(0, 500);
+  } catch {
+    return "unreadable response";
   }
 }
 

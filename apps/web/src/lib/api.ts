@@ -161,3 +161,14 @@ export interface DemoSeedDto {
   };
   nextPath: string;
 }
+
+export interface ConstellationIntegrationDto {
+  mode: "mock" | "live";
+  apiBaseUrl: string | null;
+  apiKeyConfigured: boolean;
+  orgConfigured: boolean;
+  tenantConfigured: boolean;
+  liveReady: boolean;
+  submissionEndpoint: string | null;
+  docsUrl: string;
+}

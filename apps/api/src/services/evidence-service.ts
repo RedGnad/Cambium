@@ -1,13 +1,16 @@
 import { randomUUID } from "node:crypto";
 import {
   applyPrivacyTransform,
+  buildConstellationContent,
   buildConstellationPayload,
   buildEvidencePacket,
   canonicalSha256Ref,
   createConstellationAdapter,
   fieldEvidencePacketSchema,
   packetHash,
+  publicKeyFromPrivateKey,
   signCanonical,
+  signConstellationFingerprint,
   verifyCanonical,
   type FieldEvidencePacket,
   type LatLng,
@@ -242,12 +245,29 @@ export async function submitEvidencePacket(
 
   const eventId = randomUUID();
   const timestamp = new Date().toISOString();
+  const constellationContent = buildConstellationContent({
+    packet,
+    packetHash: record.packetHash as Sha256Ref,
+    signerId: attestation.signerId,
+    eventId,
+    timestamp,
+    orgId: env.CONSTELLATION_ORG_ID,
+    tenantId: env.CONSTELLATION_TENANT_ID,
+  });
+  const constellationProof = signConstellationFingerprint(
+    constellationContent,
+    env.DEMO_SIGNER_PRIVATE_KEY
+  );
+  const constellationPublicKey = publicKeyFromPrivateKey(
+    env.DEMO_SIGNER_PRIVATE_KEY,
+    false
+  );
 
   const payload = buildConstellationPayload({
     packet,
     packetHash: record.packetHash as Sha256Ref,
-    signerPublicKeyHex: attestation.publicKeyHex,
-    signatureHex: attestation.signature,
+    signerPublicKeyHex: constellationPublicKey,
+    signatureHex: constellationProof.signatureHex,
     signerId: attestation.signerId,
     eventId,
     timestamp,

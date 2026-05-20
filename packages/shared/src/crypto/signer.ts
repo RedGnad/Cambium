@@ -1,5 +1,6 @@
 import { secp256k1 } from "@noble/curves/secp256k1";
 import { sha256 as nobleSha256 } from "@noble/hashes/sha256";
+import { sha512 } from "@noble/hashes/sha512";
 import { bytesToHex, hexToBytes } from "./hash.js";
 import { canonicalJsonBytes } from "./canonical.js";
 
@@ -15,6 +16,13 @@ export function generateKeyPair(): SecpKeyPair {
     privateKeyHex: bytesToHex(priv),
     publicKeyHex: bytesToHex(pub),
   };
+}
+
+export function publicKeyFromPrivateKey(
+  privateKeyHex: string,
+  compressed = true
+): string {
+  return bytesToHex(secp256k1.getPublicKey(hexToBytes(privateKeyHex), compressed));
 }
 
 /**
@@ -72,6 +80,54 @@ export function verifyDigest(
 ): boolean {
   try {
     const digest = hexToBytes(digestHex);
+    const pub = hexToBytes(publicKeyHex);
+    const sig = hexToBytes(
+      signatureHex.startsWith("0x") ? signatureHex.slice(2) : signatureHex
+    );
+    return secp256k1.verify(sig, digest, pub);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Constellation Digital Evidence signature protocol.
+ *
+ * Docs require:
+ *   1. RFC 8785 canonical JSON over the FingerprintValue content.
+ *   2. SHA-256 of those UTF-8 bytes.
+ *   3. Convert that digest to hex, treat it as UTF-8 bytes.
+ *   4. SHA-512 over those hex bytes, truncated to 32 bytes.
+ *   5. ECDSA secp256k1 signature encoded as DER hex.
+ */
+export function signConstellationFingerprint(
+  fingerprintValue: unknown,
+  privateKeyHex: string
+): { signatureHex: string; digestHex: string } {
+  const canonicalBytes = canonicalJsonBytes(fingerprintValue);
+  const sha256Bytes = nobleSha256(canonicalBytes);
+  const sha256Hex = bytesToHex(sha256Bytes);
+  const sha512Bytes = sha512(new TextEncoder().encode(sha256Hex));
+  const digest = sha512Bytes.slice(0, 32);
+  const priv = hexToBytes(privateKeyHex);
+  const sig = secp256k1.sign(digest, priv);
+  return {
+    signatureHex: sig.toDERHex(),
+    digestHex: bytesToHex(digest),
+  };
+}
+
+export function verifyConstellationFingerprint(
+  fingerprintValue: unknown,
+  signatureHex: string,
+  publicKeyHex: string
+): boolean {
+  try {
+    const canonicalBytes = canonicalJsonBytes(fingerprintValue);
+    const sha256Bytes = nobleSha256(canonicalBytes);
+    const sha256Hex = bytesToHex(sha256Bytes);
+    const sha512Bytes = sha512(new TextEncoder().encode(sha256Hex));
+    const digest = sha512Bytes.slice(0, 32);
     const pub = hexToBytes(publicKeyHex);
     const sig = hexToBytes(
       signatureHex.startsWith("0x") ? signatureHex.slice(2) : signatureHex

@@ -119,7 +119,7 @@ export default async function VerifyPage({
       <header className="rounded-md border border-cambium-100 bg-cambium-50 p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-xl font-semibold text-cambium-700">
-            Cambium Field Evidence Packet
+            Verified Field Evidence Packet
           </h1>
           <div className="flex items-center gap-2">
             <span
@@ -176,6 +176,16 @@ export default async function VerifyPage({
         <Field label="Field" value={data.field.fieldId} />
         <Field label="Machine" value={data.machine.machineId} />
         <Field
+          label="Constellation"
+          value={
+            data.constellation
+              ? `${data.constellation.mode} · ${
+                  data.constellation.accepted ? "accepted" : "pending"
+                }`
+              : "not submitted"
+          }
+        />
+        <Field
           label="Signature"
           value={
             data.signatureValid === true
@@ -185,6 +195,7 @@ export default async function VerifyPage({
                 : "—"
           }
         />
+        <Field label="Verification URL" value={`/verify/${hash}`} />
       </section>
 
       <section className="card">
@@ -196,6 +207,19 @@ export default async function VerifyPage({
           height={300}
           label={`${data.publicEvidence.gpsPathPreview?.length ?? 0} points · privacy policy: ${data.privacy.gpsPolicy}`}
         />
+      </section>
+
+      <section className="card border-cambium-100 bg-cambium-50/60">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-cambium-700">
+          Private by design
+        </h2>
+        <div className="grid gap-2 text-xs text-cambium-700 sm:grid-cols-2 lg:grid-cols-5">
+          <div>Raw machine log: not public</div>
+          <div>Exact GPS: not public</div>
+          <div>Firmware: never accessed</div>
+          <div>Navigation logic: never accessed</div>
+          <div>Photos: hash-only</div>
+        </div>
       </section>
 
       <section className="card">
