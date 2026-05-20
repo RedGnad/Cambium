@@ -65,6 +65,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@cambium/api':
+        specifier: workspace:*
+        version: link:../api
       '@cambium/shared':
         specifier: workspace:*
         version: link:../../packages/shared

@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@cambium/api": "workspace:*",
     "@cambium/shared": "workspace:*",
     "leaflet": "^1.9.4",
     "next": "^15.0.0",

@@ -16,6 +16,8 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/*": ["./src/*"],
+      "@cambium/api": ["../api/src/app.ts"],
+      "@cambium/api/*": ["../api/src/*"],
       "@cambium/shared": ["../../packages/shared/src/index.ts"],
       "@cambium/shared/*": ["../../packages/shared/src/*"]
     }

@@ -34,8 +34,10 @@ export default async function DashboardPage() {
         <h1 className="text-xl font-semibold">API unreachable</h1>
         <p className="mt-2 text-sm text-ink-600">
           Could not reach the Cambium API at <code className="hash">/api/proxy</code>.
-          Run <code className="hash">pnpm dev</code> at the repo root or
-          <code className="hash">pnpm --filter @cambium/api dev</code>.
+          Locally, run <code className="hash">pnpm dev</code> at the repo root.
+          On Vercel, configure an external Postgres <code className="hash">DATABASE_URL</code>
+          and demo signer keys, or set <code className="hash">API_BASE_URL</code> to a
+          deployed Cambium API host.
         </p>
       </div>
     );

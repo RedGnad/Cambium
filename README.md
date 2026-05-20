@@ -133,6 +133,14 @@ pnpm dev
 
 Then open `http://localhost:3000`.
 
+## Vercel Deployment
+
+For a public demo, deploy the frontend on Vercel with either the embedded API route
+or a separate hosted Fastify API. The important rule is simple: Vercel must not use
+`localhost` for `DATABASE_URL` or `API_BASE_URL`.
+
+See [docs/deployment-vercel.md](docs/deployment-vercel.md).
+
 ## Current Implementation Status
 
 | Module | Status |
@@ -162,6 +170,7 @@ Then open `http://localhost:3000`.
 - [Evidence packet](docs/evidence-packet.md)
 - [Privacy and data boundaries](docs/privacy-and-data-boundaries.md)
 - [Demo script](docs/demo-script.md)
+- [Vercel deployment](docs/deployment-vercel.md)
 - [Submission draft](docs/submission-draft.md)
 
 ## License

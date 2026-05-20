@@ -1,4 +1,5 @@
 import { MapClient } from "@/components/MapClient";
+import { getServerApiBase } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
@@ -58,10 +59,8 @@ interface TamperedResponse {
 type VerifyResponse = VerifiedResponse | TamperedResponse;
 
 async function fetchVerification(hash: string): Promise<VerifyResponse | null> {
-  const base =
-    process.env.API_BASE_URL ? `${process.env.API_BASE_URL}/api` : "http://localhost:4000/api";
   try {
-    const res = await fetch(`${base}/verify/${encodeURIComponent(hash)}`, {
+    const res = await fetch(`${getServerApiBase()}/verify/${encodeURIComponent(hash)}`, {
       cache: "no-store",
     });
     if (res.status === 404) return null;

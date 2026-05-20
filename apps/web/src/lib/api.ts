@@ -1,13 +1,35 @@
-// Web → API client.
-//   - Browser: hits /api/proxy/* (Next rewrite to the Fastify API).
-//   - Server (Server Components, Route Handlers): hits the API directly so
-//     SSR fetches don't loop back through Next.
-const BASE =
-  typeof window === "undefined"
-    ? process.env.API_BASE_URL
-      ? `${process.env.API_BASE_URL}/api`
-      : "http://localhost:4000/api"
-    : "/api/proxy";
+// Web -> API client.
+//   - Browser: hits /api/proxy/*.
+//   - Local server rendering: hits the Fastify API directly.
+//   - Vercel server rendering: either hits an external API_BASE_URL or the
+//     embedded Next route handler at /api/proxy.
+function cleanBaseUrl(raw: string): string {
+  return raw.replace(/\/+$/, "").replace(/\/api$/, "");
+}
+
+function isLocalhost(raw: string): boolean {
+  try {
+    const url = new URL(raw);
+    return url.hostname === "localhost" || url.hostname === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
+export function getServerApiBase(): string {
+  const configured = process.env.API_BASE_URL;
+  if (configured && !(process.env.VERCEL && isLocalhost(configured))) {
+    return `${cleanBaseUrl(configured)}/api`;
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}/api/proxy`;
+  }
+
+  return "http://localhost:4000/api";
+}
+
+const BASE = typeof window === "undefined" ? getServerApiBase() : "/api/proxy";
 
 async function http<T>(
   method: string,
