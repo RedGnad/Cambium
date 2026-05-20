@@ -148,5 +148,16 @@ export interface DemoSeedDto {
     crop: string | null;
     importSource: string;
   };
+  evidencePacket: {
+    id: string;
+    packetHash: string;
+    status: string;
+    publicVerifySlug: string;
+  };
+  verifyUrl: string;
+  pdf: {
+    rendered: boolean;
+    bytes: number;
+  };
   nextPath: string;
 }

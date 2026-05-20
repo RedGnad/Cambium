@@ -6,7 +6,7 @@ This document is for the field and machine partner who understands real autonomo
 
 Agricultural supply chains are moving toward verifiable evidence.
 
-In Europe, regulators and buyers increasingly ask companies to substantiate environmental, traceability and supply-chain claims. The European Commission says 53% of green claims give vague, misleading or unfounded information, and 40% have no supporting evidence. This creates demand for audit-ready proof, not just declarations.
+In Europe, regulators and buyers increasingly ask companies to substantiate environmental, traceability and supply-chain claims. A European Commission study reported that 53.3% of examined environmental claims were vague, misleading or unfounded, and that 40% were unsubstantiated. This creates demand for audit-ready proof, not just declarations.
 
 Cambium MRV responds to that need by producing verifiable evidence packets from field operations without exposing proprietary machine data.
 
@@ -39,7 +39,23 @@ Cambium does not ask for full transparency. It creates a proof layer above the p
 
 > The machine stays private. The proof layer becomes verifiable.
 
-## 3. What We Need From The Partner
+## 3. Why Closed-Source Machines Are A Strength
+
+The fact that the machine is closed-source is not a weakness. It is the use case.
+
+Most buyers, auditors or compliance teams want proof. Most machine operators cannot expose raw telemetry, firmware, safety systems or proprietary navigation logic.
+
+Cambium sits in the middle:
+
+```text
+private machine layer
+  -> privacy transform
+  -> public/verifiable proof layer
+```
+
+The closed-source constraint makes the product sharper: Cambium is useful exactly because full transparency is unrealistic.
+
+## 4. What We Need From The Partner
 
 Minimum contribution:
 
@@ -65,7 +81,7 @@ Ideal contribution:
 - explanation of available sensor categories such as camera, olfactory/gas, AI inference, timestamps and machine events;
 - review of the final public packet before demo.
 
-## 4. What We Will Never Ask For
+## 5. What We Will Never Ask For
 
 We do not need:
 
@@ -79,7 +95,7 @@ We do not need:
 - machine manufacturer secrets;
 - farm identity.
 
-## 5. Business Opportunity
+## 6. Business Opportunity
 
 Cambium can become a privacy-preserving evidence layer for:
 
@@ -92,20 +108,6 @@ Cambium can become a privacy-preserving evidence layer for:
 - audit preparation.
 
 The strongest wedge is not "carbon certification". It is verifiable field evidence without exposing the machine.
-
-## 6. Partner Upside
-
-The partner can help define a product before the market gets crowded.
-
-Potential upside:
-
-- early advisor role;
-- first pilot partner;
-- technical credibility;
-- possible equity/advisor agreement later;
-- visibility if desired;
-- optional anonymity if preferred;
-- future paid pilot if the project advances.
 
 ## 7. Partner Risk Controls
 
@@ -133,7 +135,21 @@ The partner reviews and approves any dataset before it enters the public demo.
 No manufacturer disclosure:
 Machine brand, vendor and model remain hidden unless explicitly approved.
 
-## 8. Immediate Next Step
+## 8. Partner Upside
+
+The partner can help define a product before the market gets crowded.
+
+Potential upside:
+
+- early advisor role;
+- first pilot partner;
+- technical credibility;
+- possible equity/advisor agreement later;
+- visibility if desired;
+- optional anonymity if preferred;
+- future paid pilot if the project advances.
+
+## 9. Immediate Next Step
 
 We only need one safe demo dataset.
 
@@ -149,7 +165,7 @@ machine session
   -> PDF report
 ```
 
-## 9. Business Credibility
+## 10. Business Credibility
 
 Cambium starts from a practical market gap:
 
@@ -161,7 +177,7 @@ Cambium starts from the opposite assumption:
 
 That makes the closed-source machine context an advantage, not a handicap. It gives Cambium a specific privacy/proof use case that generic MRV platforms often miss.
 
-## 10. Pilot Economics
+## 11. Pilot Economics
 
 The most likely first payer is not the individual farmer.
 
@@ -195,4 +211,3 @@ What the farmer or machine operator gets:
 - reduced risk of over-sharing machine data.
 
 Cambium's short-term ROI is not yield improvement. It is evidence readiness.
-

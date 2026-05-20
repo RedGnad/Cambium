@@ -1,6 +1,13 @@
 import type { OperationType } from "@cambium/shared";
 import { DEMO_OWNER_ID } from "../lib/constants.js";
+import { env } from "../lib/env.js";
 import { prisma } from "../lib/prisma.js";
+import {
+  createPacketFromSession,
+  signEvidencePacket,
+  submitEvidencePacket,
+} from "./evidence-service.js";
+import { renderEvidencePdf } from "./pdf-service.js";
 import { simulateSession } from "./session-simulator.js";
 
 const DEMO_FIELD = {
@@ -36,6 +43,17 @@ export interface DemoSeedResult {
     operationType: string;
     crop: string | null;
     importSource: string;
+  };
+  evidencePacket: {
+    id: string;
+    packetHash: string;
+    status: string;
+    publicVerifySlug: string;
+  };
+  verifyUrl: string;
+  pdf: {
+    rendered: boolean;
+    bytes: number;
   };
   nextPath: string;
 }
@@ -90,6 +108,12 @@ export async function ensureDemoSeed(): Promise<DemoSeedResult> {
       },
     }));
 
+  const evidencePacket = await ensureSubmittedEvidencePacket(session.id);
+  const publicVerifySlug =
+    evidencePacket.publicVerifySlug ?? evidencePacket.packetHash.replace(/^sha256:/, "");
+  const verifyUrl = `${env.APP_BASE_URL}/verify/${publicVerifySlug}`;
+  const pdfBytes = await renderSeedPdf(evidencePacket.id, verifyUrl);
+
   return {
     field: {
       id: field.id,
@@ -107,8 +131,93 @@ export async function ensureDemoSeed(): Promise<DemoSeedResult> {
       crop: session.crop,
       importSource: session.importSource,
     },
+    evidencePacket: {
+      id: evidencePacket.id,
+      packetHash: evidencePacket.packetHash,
+      status: evidencePacket.status,
+      publicVerifySlug,
+    },
+    verifyUrl,
+    pdf: {
+      rendered: true,
+      bytes: pdfBytes,
+    },
     nextPath: `/sessions/${session.id}`,
   };
+}
+
+async function ensureSubmittedEvidencePacket(sessionId: string) {
+  const existingSubmitted = await prisma.evidencePacket.findFirst({
+    where: { sessionId, status: "submitted" },
+    orderBy: { createdAt: "desc" },
+  });
+  if (existingSubmitted) return existingSubmitted;
+
+  const reusable = await prisma.evidencePacket.findFirst({
+    where: {
+      sessionId,
+      status: { in: ["draft", "signed"] },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const draft =
+    reusable ??
+    (await createPacketFromSession({
+      sessionId,
+      privacyLevel: "standard",
+    }));
+
+  const draftId = draft.id;
+  const current = await prisma.evidencePacket.findUniqueOrThrow({
+    where: { id: draftId },
+  });
+
+  if (current.status === "draft") {
+    await signEvidencePacket({
+      evidencePacketId: current.id,
+      signerId: "farmer_demo_001",
+      statement:
+        "Demo attestation: this packet represents a simulated autonomous harvest session for Cambium MRV.",
+      signatureMode: "demo_server_signer",
+    });
+  }
+
+  const signed = await prisma.evidencePacket.findUniqueOrThrow({
+    where: { id: current.id },
+  });
+  if (signed.status === "signed") {
+    await submitEvidencePacket(signed.id);
+  }
+
+  return prisma.evidencePacket.findUniqueOrThrow({
+    where: { id: current.id },
+  });
+}
+
+async function renderSeedPdf(evidencePacketId: string, verifyUrl: string): Promise<number> {
+  const row = await prisma.evidencePacket.findUniqueOrThrow({
+    where: { id: evidencePacketId },
+    include: { constellationSubmissions: { orderBy: { createdAt: "desc" }, take: 1 } },
+  });
+
+  const pdf = await renderEvidencePdf({
+    packetJson: row.packetJson as object,
+    packetHash: row.packetHash,
+    status: row.status,
+    createdAt: row.createdAt.toISOString(),
+    signedAt: row.signedAt?.toISOString() ?? null,
+    submittedAt: row.submittedAt?.toISOString() ?? null,
+    verificationUrl: verifyUrl,
+    submission: row.constellationSubmissions[0]
+      ? {
+          mode: row.constellationSubmissions[0].mode,
+          eventId: row.constellationSubmissions[0].constellationEventId,
+          accepted: row.constellationSubmissions[0].accepted,
+        }
+      : null,
+  });
+  return pdf.byteLength;
 }
 
 function sessionDataForSeed(fieldCode: string, machineCode: string) {

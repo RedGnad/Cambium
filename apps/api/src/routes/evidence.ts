@@ -8,6 +8,7 @@ import {
   submitEvidencePacket,
 } from "../services/evidence-service.js";
 import { renderEvidencePdf } from "../services/pdf-service.js";
+import { env } from "../lib/env.js";
 
 const fromSessionBodySchema = z
   .object({
@@ -149,6 +150,7 @@ export async function evidenceRoutes(app: FastifyInstance): Promise<void> {
       include: { constellationSubmissions: { orderBy: { createdAt: "desc" }, take: 1 } },
     });
     if (!row) return reply.code(404).send({ error: "not_found" });
+    const verifySlug = row.publicVerifySlug ?? row.packetHash.replace(/^sha256:/, "");
     const pdf = await renderEvidencePdf({
       packetJson: row.packetJson as object,
       packetHash: row.packetHash,
@@ -156,6 +158,7 @@ export async function evidenceRoutes(app: FastifyInstance): Promise<void> {
       createdAt: row.createdAt.toISOString(),
       signedAt: row.signedAt?.toISOString() ?? null,
       submittedAt: row.submittedAt?.toISOString() ?? null,
+      verificationUrl: `${env.APP_BASE_URL}/verify/${verifySlug}`,
       submission: row.constellationSubmissions[0]
         ? {
             mode: row.constellationSubmissions[0].mode,

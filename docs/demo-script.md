@@ -14,6 +14,17 @@ pnpm dev
 
 Open `http://localhost:3000`.
 
+`pnpm seed:demo` prepares the full evidence dossier:
+
+1. Creates the demo field.
+2. Creates the demo autonomous harvester.
+3. Creates the demo HARVEST session.
+4. Generates the Field Evidence Packet.
+5. Signs the packet with the demo signer.
+6. Submits the fingerprint through Constellation mock mode.
+7. Creates the public verify URL.
+8. Render-tests the PDF report.
+
 ## Judge Flow
 
 1. Click "Run demo flow" on the dashboard.
@@ -38,4 +49,3 @@ The raw machine data never becomes public. The verifier sees the proof layer: ps
 - Tamper detection hashes raw stored JSON before schema parsing.
 - The claim boundary says Cambium supports evidence workflows; it does not certify compliance or carbon credits.
 - The demo is seeded so judges do not have to invent field and machine records manually.
-

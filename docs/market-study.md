@@ -17,13 +17,13 @@ Cambium sits between these two forces:
 
 ### Green Claims
 
-The European Commission states that 53% of green claims give vague, misleading or unfounded information and 40% have no supporting evidence. The Green Claims initiative is a clear signal that environmental claims are moving toward substantiation, verification and evidence trails.
+A European Commission study reported that 53.3% of examined environmental claims were vague, misleading or unfounded, and that 40% were unsubstantiated. The Green Claims initiative is a clear signal that environmental claims are moving toward substantiation, verification and evidence trails.
 
 Cambium relevance:
 Cambium can produce upstream evidence packets that support substantiation without asking operators to reveal raw telemetry.
 
 Source:
-https://environment.ec.europa.eu/topics/circular-economy-topics/green-claims_en
+https://environment.ec.europa.eu/topics/circular-economy/eu-ecolabel/consumers_en
 
 ### EUDR
 
@@ -153,4 +153,3 @@ That makes Cambium especially relevant for:
 Cambium does not make a company compliant with EUDR, CSRD, CSDDD, SBTi FLAG, GHG Protocol or carbon-credit methodologies.
 
 Cambium produces upstream, privacy-preserving field evidence that can support due-diligence and audit workflows.
-

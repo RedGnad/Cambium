@@ -62,3 +62,4 @@ Then:
 Run demo flow -> Generate evidence packet -> Sign -> Submit -> Verify -> Export PDF
 ```
 
+The seed command also prepares a signed and submitted demo packet so the verification page and PDF can be opened even if the presenter skips manual setup.

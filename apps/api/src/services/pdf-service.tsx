@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Document,
+  Image,
   Page,
   Text,
   View,
@@ -8,6 +9,7 @@ import {
   renderToBuffer,
 } from "@react-pdf/renderer";
 import { fieldEvidencePacketSchema } from "@cambium/shared";
+import QRCode from "qrcode";
 
 export interface RenderEvidencePdfInput {
   packetJson: object;
@@ -16,6 +18,7 @@ export interface RenderEvidencePdfInput {
   createdAt: string;
   signedAt: string | null;
   submittedAt: string | null;
+  verificationUrl: string;
   submission: {
     mode: string;
     eventId: string | null;
@@ -35,6 +38,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#f2f7f3",
     color: "#264a31",
   },
+  summaryGrid: { flexDirection: "row", marginBottom: 14 },
+  summaryBox: {
+    flex: 1,
+    padding: 8,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    backgroundColor: "#fafafa",
+  },
+  summaryLabel: { color: "#666", fontSize: 8, marginBottom: 3 },
+  summaryValue: { fontSize: 11, fontWeight: 700 },
   section: { marginBottom: 14 },
   sectionTitle: {
     fontSize: 11,
@@ -55,6 +69,9 @@ const styles = StyleSheet.create({
     borderStyle: "solid",
   },
   boundaryTitle: { fontSize: 10, fontWeight: 700, marginBottom: 4 },
+  verificationRow: { flexDirection: "row", alignItems: "center" },
+  qr: { width: 92, height: 92 },
+  verificationText: { flex: 1, marginLeft: 14 },
   footer: {
     position: "absolute",
     bottom: 24,
@@ -89,6 +106,15 @@ export async function renderEvidencePdf(
 ): Promise<Buffer> {
   const packet = fieldEvidencePacketSchema.parse(input.packetJson);
   const attestation = packet.attestations[0];
+  const qrDataUrl = await QRCode.toDataURL(input.verificationUrl, {
+    errorCorrectionLevel: "M",
+    margin: 1,
+    scale: 5,
+    color: {
+      dark: "#111111",
+      light: "#ffffff",
+    },
+  });
 
   const doc = (
     <Document>
@@ -107,16 +133,29 @@ export async function renderEvidencePdf(
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Summary</Text>
+          <Text style={styles.sectionTitle}>Executive summary</Text>
+          <View style={styles.summaryGrid}>
+            <View style={styles.summaryBox}>
+              <Text style={styles.summaryLabel}>Status</Text>
+              <Text style={styles.summaryValue}>{input.status}</Text>
+            </View>
+            <View style={styles.summaryBox}>
+              <Text style={styles.summaryLabel}>Operation</Text>
+              <Text style={styles.summaryValue}>{packet.operation.type}</Text>
+            </View>
+            <View style={styles.summaryBox}>
+              <Text style={styles.summaryLabel}>Assurance</Text>
+              <Text style={styles.summaryValue}>{packet.assuranceLevel}</Text>
+            </View>
+          </View>
           <Row label="Packet ID" value={packet.packetId} />
-          <Row label="Status" value={input.status} />
           <Row label="Created" value={input.createdAt} />
           <Row label="Signed" value={input.signedAt ?? "—"} />
           <Row label="Submitted" value={input.submittedAt ?? "—"} />
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Operation</Text>
+          <Text style={styles.sectionTitle}>Field operation</Text>
           <Row label="Type" value={packet.operation.type} />
           <Row label="Crop" value={packet.operation.crop} />
           <Row label="Started at" value={packet.operation.startedAt} />
@@ -209,10 +248,7 @@ export async function renderEvidencePdf(
           {input.submission ? (
             <>
               <Row label="Mode" value={input.submission.mode} />
-              <Row
-                label="Event ID"
-                value={input.submission.eventId ?? "—"}
-              />
+              <Row label="Event ID" value={input.submission.eventId ?? "—"} />
               <Row
                 label="Accepted"
                 value={
@@ -227,6 +263,36 @@ export async function renderEvidencePdf(
           ) : (
             <Row label="Status" value="not submitted" />
           )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Assurance level</Text>
+          <Row label="Level" value={packet.assuranceLevel} />
+          <Row
+            label="Meaning"
+            value={
+              packet.assuranceLevel === "AL1"
+                ? "Farmer or operator-attested packet."
+                : packet.assuranceLevel === "AL2"
+                  ? "Machine or gateway-attested packet."
+                  : "Evidence packet assurance level declared by Cambium."
+            }
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Verification QR code</Text>
+          <View style={styles.verificationRow}>
+            <Image src={qrDataUrl} style={styles.qr} />
+            <View style={styles.verificationText}>
+              <Row label="Verify URL" value={input.verificationUrl} />
+              <Text>
+                Scan or open this URL to verify packet integrity, attestation
+                status and Constellation reference without exposing raw machine
+                evidence.
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View style={styles.boundary}>

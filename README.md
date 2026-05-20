@@ -16,7 +16,7 @@ Cambium creates a privacy-preserving Field Evidence Packet from a real or simula
 
 The market is moving from environmental claims to audit-ready evidence:
 
-- The European Commission says 53% of green claims give vague, misleading or unfounded information, and 40% have no supporting evidence.
+- The European Commission says 53.3% of examined environmental claims were vague, misleading or unfounded, and 40% were unsubstantiated.
 - EUDR does not make Cambium automatically relevant to every crop, but it shows the direction of travel: buyers increasingly need plot-level, audit-defensible evidence. The current EU application dates are 30 December 2026 for large and medium operators and 30 June 2027 for micro and small operators.
 - The EU Data Act has applied since 12 September 2025 and explicitly increases user access to data from connected devices, including industrial machinery and agriculture.
 - CSRD and CSDDD have been simplified, but the core pressure remains: large companies must document sustainability and value-chain impacts with better evidence.
@@ -91,7 +91,7 @@ Open demo session
   -> Export PDF
 ```
 
-After seeding, the dashboard exposes a "Run demo flow" action that opens the seeded demo session.
+After seeding, the dashboard exposes a "Run demo flow" action. The seed command creates the demo field, demo machine, harvest session, signed/submitted evidence packet, verify URL and render-tested PDF report.
 
 ## Quickstart
 
